@@ -140,7 +140,6 @@ def list_tasks(message):
         bot.send_message(chat_id, "У вас нет задач.")
 
 
-
 @bot.message_handler(commands=['delete'])
 def delete_task(message):
     msg = bot.reply_to(message, "Введите номер задачи, которую хотите удалить:")

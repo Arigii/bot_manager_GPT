@@ -91,3 +91,4 @@ class Database:
     def close(self):
         with self.db_lock:
             self.conn.close()
+
