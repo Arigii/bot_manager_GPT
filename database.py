@@ -15,6 +15,9 @@ class Database:
                                 id INTEGER PRIMARY KEY,
                                 user_id INTEGER,
                                 task TEXT,
+                                date DATE,
+                                start_time TEXT,
+                                end_time TEXT,
                                 reminder TEXT
                               )''')
             self.conn.commit()
@@ -24,6 +27,42 @@ class Database:
             cursor = self.conn.cursor()
             cursor.execute("INSERT INTO tasks (user_id, task, reminder) VALUES (?, ?, ?)", (user_id, task, reminder))
             self.conn.commit()
+
+    def add_date(self, task_id, date):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("UPDATE tasks SET date=? WHERE id=?", (date, task_id))
+            self.conn.commit()
+
+    def add_time(self, task_id, start_time, end_time):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("UPDATE tasks SET start_time=?, end_time=? WHERE id=?", (start_time, end_time, task_id))
+            self.conn.commit()
+
+    def update_task(self, task_id, new_task):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("UPDATE tasks SET task=? WHERE id=?", (new_task, task_id))
+            self.conn.commit()
+
+    def update_task_start_time(self, task_id, start_time):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("UPDATE tasks SET start_time=? WHERE id=?", (start_time, task_id))
+            self.conn.commit()
+
+    def update_task_end_time(self, task_id, end_time):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("UPDATE tasks SET end_time=? WHERE id=?", (end_time, task_id))
+            self.conn.commit()
+
+    def get_task_by_id(self, task_id):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT * FROM tasks WHERE id=?", (task_id,))
+            return cursor.fetchone()
 
     def get_tasks(self, user_id):
         with self.db_lock:
@@ -35,12 +74,6 @@ class Database:
         with self.db_lock:
             cursor = self.conn.cursor()
             cursor.execute("DELETE FROM tasks WHERE id=?", (task_id,))
-            self.conn.commit()
-
-    def update_task(self, task_id, new_task):
-        with self.db_lock:
-            cursor = self.conn.cursor()
-            cursor.execute("UPDATE tasks SET task=? WHERE id=?", (new_task, task_id))
             self.conn.commit()
 
     def set_reminder(self, task_id, reminder):
