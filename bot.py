@@ -9,6 +9,7 @@ bot = telebot.TeleBot(TOKEN)
 db = Database()
 
 
+
 @bot.message_handler(commands=['start', 'help'])
 def send_welcome(message):
     bot.reply_to(message, "Привет! Я бот-менеджер задач. Чтобы добавить задачу, используй команду /add.")
