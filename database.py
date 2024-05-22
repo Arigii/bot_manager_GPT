@@ -130,3 +130,10 @@ class Database:
             cursor = self.conn.cursor()
             cursor.execute("SELECT * FROM tasks WHERE reminder IS NOT NULL")
             return cursor.fetchall()
+
+    def get_all_datatime(self):
+        with self.db_lock:
+            cursor = self.conn.cursor()
+            cursor.execute("SELECT user_id, task, date, start_time, end_time, reminder FROM tasks WHERE date IS NOT NULL "
+                           "AND start_time IS NOT NULL AND end_time IS NOT NULL")
+            return cursor.fetchall()

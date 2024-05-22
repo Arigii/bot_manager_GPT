@@ -136,11 +136,41 @@ def check_reminders():
     while True:
         tasks = db.get_all_tasks_with_reminders()
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+
+        # Пользовательские напоминания
         for task in tasks:
             task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder_time = task
             if current_time == reminder_time:
                 bot.send_message(user_id, f"Тук-тук, вы просили меня напомнить: {task_description}")
                 db.delete_remind(None, user_id)
+
+        # Автоматические напоминания
+        tasks_auto = db.get_all_datatime()
+        for task in tasks_auto:
+            user_id, task_description, task_date, start_time, end_time, reminder_time = task
+
+            # Напоминание за 10 минут до начала задачи
+            if task_date and start_time and reminder_time is not None:
+                start_datetime_str = f"{task_date} {start_time}"
+                try:
+                    start_datetime = datetime.datetime.strptime(start_datetime_str, "%Y-%m-%d %H:%M")
+                    if (start_datetime - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M") == current_time:
+                        bot.send_message(user_id,
+                                         f"Напоминание: Задача '{task_description}' начинается через 10 минут.")
+                except ValueError as e:
+                    print(e)
+
+            # Напоминание за 10 минут до окончания задачи
+            if task_date and end_time and reminder_time is not None:
+                end_datetime_str = f"{task_date} {end_time}"
+                try:
+                    end_datetime = datetime.datetime.strptime(end_datetime_str, "%Y-%m-%d %H:%M")
+                    if (end_datetime - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M") == current_time:
+                        bot.send_message(user_id,
+                                         f"Напоминание: Задача '{task_description}' заканчивается через 10 минут.")
+                except ValueError as e:
+                    print(e)
+
         time.sleep(60)  # Проверяем каждую минуту
 
 
