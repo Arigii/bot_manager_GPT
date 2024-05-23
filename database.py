@@ -1,9 +1,10 @@
 import sqlite3
 import threading
+from config import DB_FILE
 
 
 class Database:
-    def __init__(self, db_name="users_tasks.db"):
+    def __init__(self, db_name=DB_FILE):
         self.db_lock = threading.Lock()
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.create_tables()

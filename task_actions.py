@@ -5,7 +5,7 @@ from validators import *
 def add_task(message):
     chat_id = message.chat.id
     db.add_user(chat_id)
-    bot.reply_to(message, "Введите описание вашей задачи:")
+    bot.send_message(message, "Введите описание вашей задачи:", reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(message, process_category_step)
 
 
@@ -140,9 +140,10 @@ def process_edit_step(message):
         task_id = int(message.text)
         task = db.get_task_by_id(task_id, chat_id)
         if task:
-            bot.reply_to(message, "Что вы хотите изменить?\n1. Описание\n2. Дату"
-                                  "\n3. Время начала и время окончания\n4. Категория"
-                                  "\n Напоминание редактрируется отдельной командой /reminder.")
+            bot.send_message(message, "Что вы хотите изменить?\n1. Описание\n2. Дату"
+                                      "\n3. Время начала и время окончания\n4. Категория"
+                                      "\n Напоминание редактрируется отдельной командой /reminder.",
+                             reply_markup=types.ReplyKeyboardRemove())
             bot.register_next_step_handler(message, lambda msg: process_edit_choice(msg, task_id))
         else:
             bot.reply_to(message, "Задача с указанным номером не найдена.")

@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="211d342f-8083-4ba2-847d-a694b8ce81c1" name="Changes" comment="add_auto_remind">
+    <list default="true" id="211d342f-8083-4ba2-847d-a694b8ce81c1" name="Changes" comment="fixed_bugs_and_add_categories">
+      <change afterPath="$PROJECT_DIR$/creds.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gpt.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/database.py" beforeDir="false" afterPath="$PROJECT_DIR$/database.py" afterDir="false" />
@@ -61,6 +65,12 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;settings.sync&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/creds" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="bot" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="pythonProject1" />
@@ -157,7 +167,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716409645299</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fixed_bugs_and_add_categories">
+      <option name="closed" value="true" />
+      <created>1716450507031</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1716450507031</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -166,6 +184,7 @@
     <MESSAGE value="almost_minimal_version" />
     <MESSAGE value="minimal_version" />
     <MESSAGE value="add_auto_remind" />
-    <option name="LAST_COMMIT_MESSAGE" value="add_auto_remind" />
+    <MESSAGE value="fixed_bugs_and_add_categories" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed_bugs_and_add_categories" />
   </component>
 </project>

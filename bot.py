@@ -1,7 +1,21 @@
-from telebot import types
 import threading
 import time
 from task_actions import *
+from gpt import ask_gpt  # модуль для работы с GPT
+
+
+# обрабатываем команду /debug - отправляем файл с логами
+@bot.message_handler(commands=['debug'])
+def debug(message):
+    with open(LOGS, "rb") as f:
+        bot.send_document(message.chat.id, f)
+
+
+# функция для создания клавиатуры
+def create_keyboard(buttons_list):
+    keyboard = telebot.types.ReplyKeyboardMarkup(row_width=2, resize_keyboard=True, one_time_keyboard=True)
+    keyboard.add(*buttons_list)
+    return keyboard
 
 
 @bot.message_handler(commands=['start'])
@@ -9,16 +23,14 @@ def send_welcome(message):
     chat_id = message.chat.id
     username = message.from_user.username
     db.add_user(chat_id)
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(types.KeyboardButton('/help'))
+    logging.info("Добавление пользователя в бд")
     bot.reply_to(message, f"Привет, {username}! Я бот-менеджер задач. Чтобы добавить задачу, используй команду /add.",
-                 reply_markup=markup)
+                 reply_markup=create_keyboard(["/help"]))
 
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
     chat_id = message.chat.id
-    markup = types.ReplyKeyboardRemove()
     bot.send_message(chat_id, """
     Список доступных команд:
     /add - добавить задачу
@@ -26,7 +38,7 @@ def send_help(message):
     /delete - удалить задачу
     /edit - редактировать задачу
     /reminder - установить напоминание
-    """, reply_markup=markup)
+    """, reply_markup=create_keyboard(["/add", "/list", "/delete", "/edit", "/reminder"]))
 
 
 @bot.message_handler(commands=['add'])
@@ -45,44 +57,8 @@ def list_tasks(message):
     chat_id = message.chat.id
     db.add_user(chat_id)
     db.update_list(chat_id)
-    tasks = db.get_tasks(chat_id)
-
-    categories = {
-        1: "Срочное важное",
-        2: "Несрочное важное",
-        3: "Срочное неважное",
-        4: "Мусор",
-        None: "Без категории"
-    }
-
-    categorized_tasks = {category: [] for category in categories.values()}
-
-    if tasks:
-        for task in tasks:
-            (task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder,
-             category_id) = task
-            task_info = f"{sequence_number}. {task_description}\n"
-            if task_date:
-                task_info += f"  Дата: {task_date}\n"
-            if start_time:
-                task_info += f"  Время начала: {start_time}\n"
-            if end_time:
-                task_info += f"  Время окончания: {end_time}\n"
-            if reminder:
-                task_info += f"  Напоминание: {reminder}\n"
-
-            category = categories[category_id]
-            categorized_tasks[category].append(task_info)
-
-        response = "Ваши задачи:\n"
-        for category, tasks_list in categorized_tasks.items():
-            if tasks_list:
-                response += f"\nКатегория: {category}\n"
-                response += "".join(tasks_list)
-
-        bot.send_message(chat_id, response)
-    else:
-        bot.send_message(chat_id, "У вас нет задач.")
+    lists_task = print_list(chat_id)
+    bot.send_message(chat_id, lists_task, reply_markup=types.ReplyKeyboardRemove())
 
 
 @bot.message_handler(commands=['delete'])
@@ -95,7 +71,7 @@ def delete_task(message):
 def process_delete_step(message):
     chat_id = message.chat.id
     db.delete_task(int(message.text), chat_id)
-    bot.send_message(chat_id, "Задача удалена успешно!")
+    bot.send_message(chat_id, "Задача удалена успешно!", reply_markup=types.ReplyKeyboardRemove())
 
 
 @bot.message_handler(commands=['reminder'])
@@ -106,7 +82,8 @@ def set_reminder(message):
 
 
 def process_reminder_step(message):
-    msg = bot.reply_to(message, "Введите дату и время напоминания (в формате ГГГГ-ММ-ДД ЧЧ:ММ):")
+    msg = bot.reply_to(message, "Введите дату и время напоминания (в формате ГГГГ-ММ-ДД ЧЧ:ММ):",
+                       reply_markup=types.ReplyKeyboardRemove())
     bot.register_next_step_handler(msg, lambda msg: process_reminder_date_step(msg, message.text))
 
 
@@ -196,6 +173,29 @@ def check_reminders():
                     print(e)
 
         time.sleep(60)  # Проверяем каждую минуту
+
+
+@bot.message_handler(commands=['analysis'])
+def analysis_gpt_answer(message):
+    chat_id = message.chat.id
+    try:
+        bot.send_message(chat_id, "Генерирую ответ, подождите  ✍(◔◡◔)",
+                         reply_markup=types.ReplyKeyboardRemove())
+
+        # отправляем запрос к GPT
+        analys = print_list(chat_id)
+        status_gpt, answer_gpt = ask_gpt(analys)  # передаем сообщение
+
+        # обрабатываем ответ от GPT
+        if not status_gpt:
+            # если что-то пошло не так — уведомляем пользователя и прекращаем выполнение функции
+            bot.send_message(chat_id, answer_gpt)
+            return
+        bot.reply_to(message, answer_gpt)  # отвечаем пользователю текстом
+        logging.info(f"Успешная отправка ответа gpt пользователю {chat_id}")
+    except Exception as e:
+        logging.error(e)  # если ошибка — записываем её в логи
+        bot.send_message(message.from_user.id, "Не получилось ответить. Попробуй написать другое сообщение")
 
 
 reminder_thread = threading.Thread(target=check_reminders)
