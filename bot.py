@@ -46,19 +46,40 @@ def list_tasks(message):
     db.add_user(chat_id)
     db.update_list(chat_id)
     tasks = db.get_tasks(chat_id)
+
+    categories = {
+        1: "Срочное важное",
+        2: "Несрочное важное",
+        3: "Срочное неважное",
+        4: "Мусор",
+        None: "Без категории"
+    }
+
+    categorized_tasks = {category: [] for category in categories.values()}
+
     if tasks:
-        response = "Ваши задачи:\n"
         for task in tasks:
-            task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder = task
-            response += f"{sequence_number}. {task_description}\n"
+            (task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder,
+             category_id) = task
+            task_info = f"{sequence_number}. {task_description}\n"
             if task_date:
-                response += f"  Дата: {task_date}\n"
+                task_info += f"  Дата: {task_date}\n"
             if start_time:
-                response += f"  Время начала: {start_time}\n"
+                task_info += f"  Время начала: {start_time}\n"
             if end_time:
-                response += f"  Время окончания: {end_time}\n"
+                task_info += f"  Время окончания: {end_time}\n"
             if reminder:
-                response += f"  Напоминание: {reminder}\n"
+                task_info += f"  Напоминание: {reminder}\n"
+
+            category = categories[category_id]
+            categorized_tasks[category].append(task_info)
+
+        response = "Ваши задачи:\n"
+        for category, tasks_list in categorized_tasks.items():
+            if tasks_list:
+                response += f"\nКатегория: {category}\n"
+                response += "".join(tasks_list)
+
         bot.send_message(chat_id, response)
     else:
         bot.send_message(chat_id, "У вас нет задач.")
@@ -73,8 +94,7 @@ def delete_task(message):
 
 def process_delete_step(message):
     chat_id = message.chat.id
-    task_id = int(message.text)
-    db.delete_task(task_id)
+    db.delete_task(int(message.text), chat_id)
     bot.send_message(chat_id, "Задача удалена успешно!")
 
 
@@ -106,7 +126,7 @@ def process_reminder_date_step(message, task_id):
         bot.register_next_step_handler(message, lambda msg: process_reminder_date_step(msg, task_id))
         return
 
-    task = db.get_task_by_id(task_id)
+    task = db.get_task_by_id(task_id, chat_id)
     if not task:
         bot.send_message(chat_id, "Ошибка: Задача с указанным номером не найдена.")
         return
@@ -128,7 +148,7 @@ def process_reminder_date_step(message, task_id):
             bot.register_next_step_handler(message, lambda msg: process_reminder_date_step(msg, task_id))
             return
 
-    db.set_reminder(task_id, reminder)
+    db.set_reminder(task_id, reminder, chat_id)
     bot.send_message(chat_id, "Напоминание установлено успешно!")
 
 
@@ -139,7 +159,8 @@ def check_reminders():
 
         # Пользовательские напоминания
         for task in tasks:
-            task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder_time = task
+            (task_id, user_id, sequence_number, task_description, task_date, start_time, end_time, reminder_time,
+             category_id) = task
             if current_time == reminder_time:
                 bot.send_message(user_id, f"Тук-тук, вы просили меня напомнить: {task_description}")
                 db.delete_remind(None, user_id)
@@ -150,24 +171,27 @@ def check_reminders():
             user_id, task_description, task_date, start_time, end_time, reminder_time = task
 
             # Напоминание за 10 минут до начала задачи
-            if task_date and start_time and reminder_time is not None:
+            if task_date and start_time:
                 start_datetime_str = f"{task_date} {start_time}"
                 try:
                     start_datetime = datetime.datetime.strptime(start_datetime_str, "%Y-%m-%d %H:%M")
-                    if (start_datetime - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M") == current_time:
+                    if ((start_datetime - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M") == current_time
+                            and (start_datetime - datetime.timedelta(minutes=10)).strftime(
+                                "%Y-%m-%d %H:%M") != reminder_time):
                         bot.send_message(user_id,
                                          f"Напоминание: Задача '{task_description}' начинается через 10 минут.")
                 except ValueError as e:
                     print(e)
 
             # Напоминание за 10 минут до окончания задачи
-            if task_date and end_time and reminder_time is not None:
+            if task_date and end_time:
                 end_datetime_str = f"{task_date} {end_time}"
                 try:
                     end_datetime = datetime.datetime.strptime(end_datetime_str, "%Y-%m-%d %H:%M")
-                    if (end_datetime - datetime.timedelta(minutes=10)).strftime("%Y-%m-%d %H:%M") == current_time:
+                    if ((end_datetime - datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M") == current_time and
+                            (end_datetime - datetime.timedelta(minutes=5)).strftime("%Y-%m-%d %H:%M") != reminder_time):
                         bot.send_message(user_id,
-                                         f"Напоминание: Задача '{task_description}' заканчивается через 10 минут.")
+                                         f"Напоминание: Задача '{task_description}' заканчивается через 5 минут.")
                 except ValueError as e:
                     print(e)
 
