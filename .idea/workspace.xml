@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="211d342f-8083-4ba2-847d-a694b8ce81c1" name="Changes" comment="fixed_bugs_and_add_categories">
+    <list default="true" id="211d342f-8083-4ba2-847d-a694b8ce81c1" name="Changes" comment="fixed_and_add_categories_and_gpt">
       <change afterPath="$PROJECT_DIR$/creds.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/gpt.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
@@ -175,7 +175,15 @@
       <option name="project" value="LOCAL" />
       <updated>1716450507031</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="fixed_and_add_categories_and_gpt">
+      <option name="closed" value="true" />
+      <created>1716483713843</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1716483713844</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -185,6 +193,7 @@
     <MESSAGE value="minimal_version" />
     <MESSAGE value="add_auto_remind" />
     <MESSAGE value="fixed_bugs_and_add_categories" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed_bugs_and_add_categories" />
+    <MESSAGE value="fixed_and_add_categories_and_gpt" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed_and_add_categories_and_gpt" />
   </component>
 </project>
