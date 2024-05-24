@@ -1,19 +1,4 @@
-import logging
-import telebot
-from telebot import types
-from database import Database
 import datetime
-
-# подтягиваем функции из database файла
-from creds import get_bot_token  # модуль для получения bot_token
-from config import LOGS
-
-# настраиваем запись логов в файл
-logging.basicConfig(filename=LOGS, level=logging.INFO,
-                    format="%(asctime)s FILE: %(filename)s IN: %(funcName)s MESSAGE: %(message)s", filemode="w")
-
-bot = telebot.TeleBot(get_bot_token())  # создаём объект бота
-db = Database()
 
 
 def validate_date(date):
@@ -33,7 +18,7 @@ def validate_time(time_set):
 
 
 # Вывожу категории из бд ради того, чтобы потом добавить функцию добавления категорий
-def category_list():
+def category_list(db):
     list_cat = db.select_all_categories()
     response = ""
     if list_cat:
@@ -44,7 +29,7 @@ def category_list():
     return response
 
 
-def print_list(chat_id):
+def print_list(chat_id, db):
     tasks = db.get_tasks(chat_id)
     categories = {
         1: "Срочное важное",
