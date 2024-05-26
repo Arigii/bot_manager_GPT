@@ -2,7 +2,7 @@ import requests
 import logging  # модуль для сбора логов
 
 # подтягиваем константы из config файла
-from config import LOGS, GPT_URL, SYSTEM_PORMPT
+from config import LOGS, GPT_URL, SYSTEM_PORMPT, IAM_TOKEN, FOLDER_ID
 from creds import get_creds  # модуль для получения токенов
 
 # настраиваем запись логов в файл
@@ -12,7 +12,7 @@ logging.basicConfig(filename=LOGS, level=logging.INFO,
 
 # запрос к GPT
 def ask_gpt(messages):
-    IAM_TOKEN, FOLDER_ID = get_creds()  # получаем iam_token и folder_id из файлов
+    #IAM_TOKEN, FOLDER_ID = get_creds()  # получаем iam_token и folder_id из файлов
 
     gpt_headers = {
         'Authorization': f'Bearer {IAM_TOKEN}',

@@ -241,7 +241,7 @@ def delete_remind(reminder, user_id):
         logging.error(f"delete_remind: {e}")
 
 
-def set_reminder(sequence_number, reminder, user_id):
+def set_reminder_time(sequence_number, reminder, user_id):
     try:
         with sqlite3.connect(db_name) as conn:
             cursor = conn.cursor()

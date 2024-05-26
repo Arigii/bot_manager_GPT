@@ -14,7 +14,7 @@ from gpt import ask_gpt  # модуль для работы с GPT
 from database import (add_user, add_task, get_last_task, add_category, add_date, add_time, get_task_by_id,
                       update_task, update_date, update_task_start_time, update_category, update_task_end_time,
                       update_list, delete_task, delete_remind, get_all_datatime, get_all_tasks_with_reminders,
-                      create_tables, get_tasks)
+                      create_tables, get_tasks, set_reminder_time)
 
 # модуль для валидирования
 from validators import category_list, validate_date, validate_time, print_list
@@ -156,7 +156,7 @@ def process_category_accept(message):
                 bot.register_next_step_handler(message, select_datetime_step)
             else:
                 bot.reply_to(message, "Не удалось найти последнюю задачу. Попробуйте еще раз.",
-                             reply_parameters=types.ReplyKeyboardRemove())
+                             )
         elif category_id == 5:
             bot.send_message(chat_id, "Хорошо, я оставлю только описание задачи. Вы всегда можете изменить задачу",
                              reply_markup=types.ReplyKeyboardRemove())
@@ -173,7 +173,7 @@ def select_datetime_step(message):
     chat_id = message.chat.id
     option = message.text.lower()
     if option == "да":
-        bot.reply_to(message, "Введите дату в формате ГГГГ-ММ-ДД", reply_parameters=types.ReplyKeyboardRemove())
+        bot.reply_to(message, "Введите дату в формате ГГГГ-ММ-ДД", )
         bot.register_next_step_handler(message, select_date_validator)
     elif option == "нет":
         bot.send_message(chat_id, "Задача добавлена без даты и времени.", reply_markup=types.ReplyKeyboardRemove())
@@ -207,7 +207,7 @@ def select_date_validator(message):
         bot.register_next_step_handler(message, select_time, lock_start_time)
     except ValueError as e:
         bot.reply_to(message, "Произошла ошибка обработки даты. Попробуйте позже",
-                     reply_parameters=types.ReplyKeyboardRemove())
+                     )
         logging.error(f"Ошибка при обработке даты: {e}")
 
 
@@ -216,7 +216,7 @@ def select_time(message, lock_start_time):
     option = message.text.lower()
     if option == "да":
         bot.reply_to(message, "Введите время начала задачи в формате ЧЧ:ММ",
-                     reply_parameters=types.ReplyKeyboardRemove())
+                     )
         bot.register_next_step_handler(message, process_time_validator, lock_start_time)
     elif option == "нет":
         bot.send_message(chat_id, "Дата добавлена успешно без времени!", reply_markup=types.ReplyKeyboardRemove())
@@ -275,7 +275,7 @@ def select_edit_task(message):
         if not get_tasks(chat_id):
             return
         bot.reply_to(message, "Введите номер задачи, которую хотите отредактировать:",
-                     reply_parameters=types.ReplyKeyboardRemove())
+                     )
         bot.register_next_step_handler(message, process_edit_step)
     except ValueError as e:
         bot.reply_to(message, "Ошибка вывода списка задач, поробуйте в следующий раз")
@@ -538,7 +538,7 @@ def process_reminder_date_step(message, task_id, task):
                 bot.register_next_step_handler(message, lambda msg: process_reminder_date_step(msg, task_id, task))
                 return
 
-        set_reminder(task_id, reminder, chat_id)
+        set_reminder_time(task_id, reminder, chat_id)
         bot.send_message(chat_id, "Напоминание установлено успешно!")
     except ValueError as e:
         bot.reply_to(message, "Произошла ошибка обработки даты для напоминания. Попробуйте еще раз.")
