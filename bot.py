@@ -8,7 +8,6 @@ from telebot import types
 from creds import get_bot_token  # модуль для получения bot_token
 from config import LOGS  # путь до лог файла
 
-
 from gpt import ask_gpt  # модуль для работы с GPT
 
 # подтягиваем функции из database файла
@@ -596,6 +595,11 @@ def check_reminders():
         except ValueError as e:
             logging.error(f"Ошибка автоматического напоминания: {e}")
         time.sleep(60)  # Проверяем каждую минуту
+
+
+@bot.message_handler()
+def hadnler_useless(message):
+    bot.reply_to(message, "Воспользуйтесь командой /start или /help")
 
 
 reminder_thread = threading.Thread(target=check_reminders)
