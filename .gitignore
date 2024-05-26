@@ -1,2 +1,4 @@
 /config.py
 /creds/
+/.idea
+/__pycache__
